@@ -1,0 +1,45 @@
+defaultEntryPoints = ["http", "https"]
+
+[traefikLog]
+  filePath = "/var/traefik/traefik.log"
+  format = "json"
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+[acme]
+  email = "example@example.com"
+  storage = "/etc/traefik/acme.json"
+  entryPoint = "https"
+  [acme.httpChallenge]
+    entryPoint = "http"
+  [[acme.domains]]
+#    main = "example.mu"
+#    sans = ["www.example.mu", "muemue.example.mu"]
+    main = "muemue.example.mu"
+
+[file]
+watch = true
+
+[backends]
+  [backends.wp]
+    [backends.wp.servers]
+      [backends.wp.servers.server0]
+        url = "http://wordpress" 
+        weight = 1
+
+[frontends]
+  [frontends.wp]
+    backend = "wp"
+    passHostHeader = true  # これをつけないとヘッダ情報がサービス側に飛ばない
+
+    [frontends.wp.routes.host]
+      rule = "Host:muemue.example.mu"
+
+[api]
+  entryPoint = "traefik"
+  dashboard = true # WebUIの有効化
